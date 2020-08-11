@@ -1,0 +1,39 @@
+---
+
+version: '3.5'
+
+services:
+
+  hasura:
+    image: 'hasura/graphql-engine:v1.3.0'
+    hostname: 'hasura-dev'
+    container_name: 'hasura-dev-container'
+    depends_on:
+      - 'hasura-db'
+    tmpfs: '/tmp'
+    ports:
+      - target: '8080'
+        published: '8080'
+    restart: 'always'
+    environment:
+      - HASURA_GRAPHQL_DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@hasura-db:5432/${POSTGRES_DB:-postgres}
+      - HASURA_GRAPHQL_ENABLE_CONSOLE=true
+      - HASURA_GRAPHQL_DEV_MODE=true
+
+  hasura-db:
+    image: 'postgres:alpine'
+    hostname: 'hasura-db'
+    container_name: 'hasura-db-container'
+    tmpfs: '/tmp'
+    volumes:
+      - type: volume
+        source: hasura-db-data
+        target: /var/lib/postgresql/data
+    restart: 'always'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+volumes:
+  hasura-db-data:
