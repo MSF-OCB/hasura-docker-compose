@@ -12,8 +12,8 @@ services:
       - 'hasura-db'
     tmpfs: '/tmp'
     ports:
-      - target: '8081'
-        published: '8081'
+      - target: '8082'
+        published: '8082'
     restart: 'always'
     environment:
       - HASURA_GRAPHQL_DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@hasura-db:5432/${POSTGRES_DB:-postgres}
@@ -34,6 +34,22 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  postgrest:
+    image: 'postgrest/postgrest'
+    hostname: 'postgrest-dev'
+    container_name: 'postgrest-dev-container'
+    depends_on:
+      - 'hasura-db'
+    tmpfs: '/tmp'
+    ports:
+      - target: '3000'
+        published: '8081'
+    restart: 'always'
+    environment:
+      - PGRST_DB_URI=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@hasura-db:5432/${POSTGRES_DB:-postgres}
+      - PGRST_DB_SCHEMA=public
+      - PGRST_DB_ANON_ROLE=postgres
 
 volumes:
   hasura-db-data:
